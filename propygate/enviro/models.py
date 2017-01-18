@@ -6,7 +6,7 @@ try:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BOARD)
     GPIO_IS_IN = {True: GPIO.IN, False: GPIO.OUT}
-    GPIO_IS_LOW = {True: GPIO.LOW, False: GPIO.HIGH}
+    GPIO_IS_HIGH = {True: GPIO.HIGH, False: GPIO.LOW}
 except:
     pass
 
@@ -23,28 +23,40 @@ class RaspPiChannel(models.Model):
     rpi = models.ForeignKey(RaspPi)
 
     is_input = models.BooleanField(default=True)
+    is_low = False
     serial_num = models.IntegerField()
     input_string = models.CharField()
     notes = models.TextField(blank=True, null=True)
-
-    class Meta:
-        abstract = True
 
     def get_input(self):
         return self.input_string % self.serial_num
 
     def setup(self):
-        GPIO.setup(self.serial_num, GPIO_IS_IN[self.is_input], initial=GPIO_IS_LOW[True])
+        GPIO.setup(self.serial_num, GPIO_IS_IN[bool(self.is_input)], initial=GPIO_IS_HIGH[False])
+
+    def toggle_high_low(self):
+        if bool(self.is_input):
+            self.is_low = not self.is_low
+            GPIO.output(self.serial_num, GPIO_IS_HIGH[self.is_low])
+
+    def turn_low(self):
+        if bool(self.is_input):
+            self.is_low = False
+            GPIO.output((self.serial_num, GPIO_IS_HIGH[self.is_low]))
+
+    def turn_high(self):
+        if bool(self.is_input):
+            self.is_low = True
+            GPIO.output((self.serial_num, GPIO_IS_HIGH[self.is_low]))
 
 
-class TempProbe(RaspPiChannel):
+class TempProbe(models.Model):
 
-    def __init__(self, *args, **kwargs):
-        kwargs['is_input'] = True
-        super(TempProbe, self).__init__(*args, **kwargs)
+    channel = models.ForeignKey(RaspPiChannel)
+    notes = models.TextField(blank=True, null=True)
 
     def get_temp(self):
-        stream = open(self.get_input())
+        stream = open(self.channel.get_input())
         reading = stream.read()
         stream.close()
         data = int(reading.split('t=')[1])
@@ -52,24 +64,54 @@ class TempProbe(RaspPiChannel):
         return temp
 
 
-class RelayController(RaspPiChannel):
+class RelayController(models.Model):
 
-    is_on = models.BooleanField(default=False)
+    channel = models.ForeignKey(RaspPiChannel, unique=True)
+    plug = models.IntegerField(unique=True)
 
-    def __init__(self, *args, **kwargs):
-        kwargs['is_input'] = False
-        super(RelayController, self).__init__(*args, **kwargs)
+    notes = models.TextField(blank=True, null=True)
+
+#
+# class Light(models.Model):
+#
+#     relay_controller = models.ForeignKey(RelayController)
+#
+#     notes = models.TextField(blank=True, null=True)
+#
+#
+# class Heater(models.Model):
+#
+#     relay_controller = models.ForeignKey(RelayController)
+#
+#     notes = models.TextField(blank=True, null=True)
 
 
-    def turn_on(self):
-        if not self.on:
-            GPIO.output(self.output_channel, GPIO.HIGH)
-            self.on = True
+class Enviro(models.Model):
 
-    def turn_off(self):
-        if self.on:
-            GPIO.output(self.output_channel, GPIO.LOW)
-            self.on = False
+    light = models.ForeignKey(RelayController, blank=True, null=True)
+    heater = models.ForeignKey(RelayController, blank=True, null=True)
+    temp_probe = models.ForeignKey(TempProbe, blank=True, null=True)
 
-    def is_on(self):
-        return self.on
+    notes = models.TextField(blank=True, null=True)
+
+
+class TempRecord(models.Model):
+
+    enviro = models.ForeignKey(Enviro)
+    temperature = models.DecimalField(max_digits=3, decimal_places=1)
+
+
+class TempProbeChange(models.Model):
+
+    datetime_changed = models.DateTimeField()
+    enviro = models.ForeignKey(Enviro)
+
+    measurement_frequency = models.PositiveSmallIntegerField()
+    temp_ideal = models.DecimalField()
+    temp_low_low = models.DecimalField()
+    temp_low = models.DecimalField()
+    temp_high = models.DecimalField()
+    temp_high_high = models.DecimalField()
+
+
+
