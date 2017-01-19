@@ -1,5 +1,5 @@
 
-ropygate/settings/local.py
+propygate/settings/local.py
 propygate/db.sqlite3
 propygate/static/
 .idea/

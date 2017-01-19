@@ -13,7 +13,7 @@ except:
 
 class RaspPi(models.Model):
 
-    model = models.CharField()
+    model = models.CharField(max_length=128)
 
     notes = models.TextField(blank=True, null=True)
 
@@ -25,7 +25,7 @@ class RaspPiChannel(models.Model):
     is_input = models.BooleanField(default=True)
     is_low = False
     serial_num = models.IntegerField()
-    input_string = models.CharField()
+    input_string = models.CharField(max_length=256)
     notes = models.TextField(blank=True, null=True)
 
     def get_input(self):
@@ -88,8 +88,8 @@ class RelayController(models.Model):
 
 class Enviro(models.Model):
 
-    light = models.ForeignKey(RelayController, blank=True, null=True)
-    heater = models.ForeignKey(RelayController, blank=True, null=True)
+    light = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_light')
+    heater = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_heater')
     temp_probe = models.ForeignKey(TempProbe, blank=True, null=True)
 
     notes = models.TextField(blank=True, null=True)
@@ -107,11 +107,11 @@ class TempProbeChange(models.Model):
     enviro = models.ForeignKey(Enviro)
 
     measurement_frequency = models.PositiveSmallIntegerField()
-    temp_ideal = models.DecimalField()
-    temp_low_low = models.DecimalField()
-    temp_low = models.DecimalField()
-    temp_high = models.DecimalField()
-    temp_high_high = models.DecimalField()
+    temp_ideal = models.DecimalField(max_digits=3, decimal_places=1)
+    temp_low_low = models.DecimalField(max_digits=3, decimal_places=1)
+    temp_low = models.DecimalField(max_digits=3, decimal_places=1)
+    temp_high = models.DecimalField(max_digits=3, decimal_places=1)
+    temp_high_high = models.DecimalField(max_digits=3, decimal_places=1)
 
 
 
