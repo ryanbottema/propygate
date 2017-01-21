@@ -48,6 +48,12 @@ class RaspPiChannel(models.Model):
         if bool(self.is_input):
             self.is_low = True
             GPIO.output((self.serial_num, GPIO_IS_HIGH[self.is_low]))
+			
+	def __unicode__(self):
+		return 'IO Channel %s %s' % (self.serial_num, '(input)' if self.is_input else '(output)')
+		
+	def __str__(self):
+		return self.__unicode__()
 
 
 class TempProbe(models.Model):

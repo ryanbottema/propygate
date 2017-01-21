@@ -1,0 +1,150 @@
+<!DOCTYPE html> <!-- html5 -->
+<html lang="en">
+    <head>
+        <meta http-equiv="x-ua-compatible" content="IE=Edge"/>
+        <meta charset="utf-8">
+        <title>Propygate :: {% block title %}Home{% endblock title %}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        {% block css %}
+
+			<link href="{{ STATIC_URL }}font-awesome/css/font-awesome.min.css?v={{ VERSION }}" rel="stylesheet">
+			<link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css?v={{ VERSION }}" rel="stylesheet">
+			<link href="{{ STATIC_URL }}adminlte/css/AdminLTE.min.css?v={{ VERSION }}" rel="stylesheet">
+			<link href="{{ STATIC_URL }}adminlte/css/skin-green-light.min.css?v={{ VERSION }}" rel="stylesheet">
+
+			{% block extra_css %}{% endblock extra_css %}
+        {% endblock %}
+
+        <script type="text/javascript">
+            var siteConfig = {
+                VERSION: '{{ VERSION }}',
+                STATIC_URL: '{{ STATIC_URL }}',
+                DEBUG: '{{ DEBUG }}'
+            };
+        </script>
+
+        <script src="{{ STATIC_URL }}requirejs/js/require.js?v={{ VERSION }}"></script>
+        <script type="text/javascript">
+            require(['{{ STATIC_URL }}requirejs/js/requirejs.config.js?v={{ VERSION }}'], function () {
+                require(['jquery', 'bootstrap', 'adminlte', 'base'], function() {
+                    {% block require_javascript %}
+                    {% endblock require_javascript %}
+                });
+            });
+        </script>
+        {% block extra_js %}{% endblock extra_js %}
+
+    </head>
+	
+	<body class="skin-green-light fixed {% block body_class %}layout-top-nav{% endblock body_class %}">
+
+        <div class="wrapper">
+            <header class="main-header">
+
+                <a href="{% url "home" %}" class="logo">
+                    <!-- mini logo for sidebar mini 50x50 pixels -->
+                    <span class="logo-mini"><b>Ppg</b></span>
+                    <!-- logo for regular state and mobile devices -->
+                    <span class="logo-lg"><b>P</b>ro<b>p</b>y<b>g</b>ate</span>
+                </a>
+
+                <nav class="navbar navbar-static-top">
+
+                    {% block sidebar_toggle %}
+                    {% endblock sidebar_toggle %}
+
+                    <div class="navbar-menu">
+                        {% if request.user.is_authenticated %}
+
+                            <ul class="nav navbar-nav navbar-right">
+
+                                <li class="no-hover"><a><i class="fa fa-user-circle-o"></i> {{ request.user.username }}</a></li>
+                                <li class="margin-right-10">
+                                    <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                                </li>
+
+                            </ul>
+                        {% else %}
+
+                            <ul class="nav navbar-nav navbar-right ">
+                                <li class="margin-right-10">
+                                    <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                                </li>
+                            </ul>
+
+                        {% endif %}
+
+                    </div>
+                </nav>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="content-header">
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert fade in{% if message.tags %} alert-{{ message.tags }}{% endif %}">
+                            <a class="close" href="#" data-dismiss="alert">&times;</a>
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% block content %}
+                    {% endblock content %}
+
+                    <div class="row">
+                        <hr/>
+                        <div class="legal col-sm-8 col-sm-offset-2">
+                            Propygate v{{VERSION}}
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- /container -->
+
+            <!-- The Right Sidebar -->
+            <aside class="control-sidebar control-sidebar-dark">
+{#                <ul class="nav nav-tabs nav-justified control-sidebar-tabs">#}
+{#                    <li class=""><a href="#control-sidebar-theme-demo-options-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-wrench"></i></a></li>#}
+{#                    <li class=""><a href="#control-sidebar-home-tab" data-toggle="tab" aria-expanded="false"><i class="fa fa-home"></i></a></li>#}
+{#                    <li class="active"><a href="#control-sidebar-settings-tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-gears"></i></a></li>#}
+{#                </ul>#}
+                <div class="tab-content">
+                    {% if request.user.is_authenticated %}
+                        <h4 class="control-sidebar-heading">Account</h4>
+                        <ul class="control-sidebar-menu">
+                            <li><a href="{% url 'logout' %}" class="margin-l-10 control-sidebar-subheading">
+                                <i class="fa fa-sign-out"></i>
+                                Logout
+                            </a></li>
+                        </ul>
+                        <h4 class="control-sidebar-heading">Admin Options</h4>
+                        <ul class="control-sidebar-menu">
+                            <li><a href="{% url 'admin:index' %}" class="margin-l-10">
+                                <i class="fa fa-cog"></i> Admin
+                            </a></li>
+                        </ul>
+
+
+                    {% else %}
+                        <h4 class="control-sidebar-heading">Account</h4>
+                        <ul class="control-sidebar-menu">
+                            <li><a href="{% url 'login' %}" class="margin-l-10 control-sidebar-subheading">
+                                <i class="fa fa-sign-in"></i>
+                                Login
+                            </a></li>
+                        </ul>
+                    {% endif %}
+                </div>
+
+            </aside>
+            <!-- The sidebar's background -->
+            <!-- This div must placed right after the sidebar for it to work-->
+            <div class="control-sidebar-bg"></div>
+
+        </div>
+
+        {% block modal %}{% endblock modal %}
+    </body>
