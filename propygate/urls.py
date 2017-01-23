@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.views.generic import RedirectView
 from propygate_core import views
 
 urlpatterns = [
-	url(r'^$', views.Home.as_view(), name="home"),
+	url(r'^$', RedirectView.as_view(pattern_name='home', permanent=False)),
     url(r'^admin/', admin.site.urls),
 	url(r'^propygate/', include('propygate.propygate_core.urls')),
+	url(r'^', include('registration.backends.simple.urls')),
 ]

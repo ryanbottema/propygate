@@ -1,9 +1,9 @@
-
 from django.conf import settings
 from django.db import models
 
 try:
     import RPi.GPIO as GPIO
+
     GPIO.setmode(GPIO.BOARD)
     GPIO_IS_IN = {True: GPIO.IN, False: GPIO.OUT}
     GPIO_IS_HIGH = {True: GPIO.HIGH, False: GPIO.LOW}
@@ -12,14 +12,12 @@ except:
 
 
 class RaspPi(models.Model):
-
     model = models.CharField(max_length=128)
 
     notes = models.TextField(blank=True, null=True)
 
 
 class RaspPiChannel(models.Model):
-
     rpi = models.ForeignKey(RaspPi)
 
     is_input = models.BooleanField(default=True)
@@ -48,16 +46,12 @@ class RaspPiChannel(models.Model):
         if bool(self.is_input):
             self.is_low = True
             GPIO.output((self.serial_num, GPIO_IS_HIGH[self.is_low]))
-			
-	def __unicode__(self):
-		return 'IO Channel %s %s' % (self.serial_num, '(input)' if self.is_input else '(output)')
-		
-	def __str__(self):
-		return self.__unicode__()
+
+    def __unicode__(self):
+        return 'IO Channel %s %s' % (self.serial_num, '(input)' if self.is_input else '(output)')
 
 
 class TempProbe(models.Model):
-
     channel = models.ForeignKey(RaspPiChannel)
     notes = models.TextField(blank=True, null=True)
 
@@ -71,11 +65,13 @@ class TempProbe(models.Model):
 
 
 class RelayController(models.Model):
-
     channel = models.ForeignKey(RaspPiChannel, unique=True)
     plug = models.IntegerField(unique=True)
 
     notes = models.TextField(blank=True, null=True)
+
+    def __unicode__(self):
+        return 'Relay on channel %s' % self.channel.serial_num
 
 #
 # class Light(models.Model):
@@ -93,22 +89,32 @@ class RelayController(models.Model):
 
 
 class Enviro(models.Model):
-
     light = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_light')
     heater = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_heater')
     temp_probe = models.ForeignKey(TempProbe, blank=True, null=True)
+    temp_probe_change_current = models.ForeignKey(
+        'enviro.TempProbeChange', blank=True, null=True, related_name='enviro_temp_probe_current'
+    )
 
+    name = models.CharField(max_length=32)
     notes = models.TextField(blank=True, null=True)
+
+    def get_current_temp(self):
+        return TempRecord.objects.filter(enviro=self).latest()
+
+    def __unicode__(self):
+        return 'Enviro %s' % self.name
 
 
 class TempRecord(models.Model):
-
     enviro = models.ForeignKey(Enviro)
     temperature = models.DecimalField(max_digits=3, decimal_places=1)
 
+    class Meta:
+        get_latest_by = 'id'
+
 
 class TempProbeChange(models.Model):
-
     datetime_changed = models.DateTimeField()
     enviro = models.ForeignKey(Enviro)
 
@@ -118,6 +124,3 @@ class TempProbeChange(models.Model):
     temp_low = models.DecimalField(max_digits=3, decimal_places=1)
     temp_high = models.DecimalField(max_digits=3, decimal_places=1)
     temp_high_high = models.DecimalField(max_digits=3, decimal_places=1)
-
-
-

@@ -1,1 +1,47 @@
 {% extends 'base.html' %}
+
+{% block title %}New Shipment{% endblock title %}
+
+{% block extra_css %}
+    <!--<link href="{{ STATIC_URL }}datepicker/css/bootstrap-datepicker.css?v={{ VERSION }}" rel="stylesheet">-->
+    <!--<link href="{{ STATIC_URL }}select2/css/select2.min.css?v={{ VERSION }}" rel="stylesheet">-->
+{% endblock extra_css %}
+
+{% block require_javascript %}
+    <!--require(['shipment']);-->
+{% endblock require_javascript %}
+
+{% block extra_js %}
+{% endblock extra_js %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-sm-8">
+
+            <div class="box box-default">
+
+                <div class="box-header">
+                    <h3 class="box-title">
+                        <i class="fa fa-asterisk fa-fw" aria-hidden="true"></i>
+                        Current State
+                    </h3>
+                </div>
+
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            {% for enviro in enviros %}
+                                <div class="pull-left">{{ enviro.get_current_temp }}</div>
+                                <div class="pull-left">{{ enviro.temp_probe_change_current }}</div>
+                                <hr/>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock content %}

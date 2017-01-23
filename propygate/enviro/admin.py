@@ -10,7 +10,9 @@ admin.site.register(
         models.RaspPiChannel,
         models.TempProbe,
         models.RelayController,
-        models.Enviro
+        models.Enviro,
+        models.TempProbeChange,
+        models.TempRecord
     ],
     admin.ModelAdmin
 )
