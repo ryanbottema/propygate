@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 try:
     import RPi.GPIO as GPIO
@@ -63,6 +64,9 @@ class TempProbe(models.Model):
         temp = data / 1000.
         return temp
 
+    def __unicode__(self):
+        return 'TempProbe on %s' % self.channel.serial_num
+
 
 class RelayController(models.Model):
     channel = models.ForeignKey(RaspPiChannel, unique=True)
@@ -124,3 +128,21 @@ class TempProbeChange(models.Model):
     temp_low = models.DecimalField(max_digits=3, decimal_places=1)
     temp_high = models.DecimalField(max_digits=3, decimal_places=1)
     temp_high_high = models.DecimalField(max_digits=3, decimal_places=1)
+
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            tpc = TempProbeChange(
+                datetime_changed=timezone.now(),
+                enviro=self.enviro,
+                measurement_frequency=self.measurement_frequency,
+                temp_ideal=self.temp_ideal,
+                temp_low_low=self.temp_low_low,
+                temp_low=self.temp_low,
+                temp_high=self.temp_high,
+                temp_high_high=self.temp_high_high
+            )
+            tpc.save(force_insert=True)
+            self.enviro.temp_probe_change_current = self
+            self.enviro.save()
+        else:
+            super(TempProbeChange, self).save(*args, **kwargs)

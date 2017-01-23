@@ -20,7 +20,7 @@
         <div class="col-md-2"></div>
         <div class="col-sm-8">
 
-            <div class="box box-default">
+            <div class="box box-success">
 
                 <div class="box-header">
                     <h3 class="box-title">
@@ -33,9 +33,24 @@
                     <div class="row">
                         <div class="col-md-12">
                             {% for enviro in enviros %}
-                                <div class="pull-left">{{ enviro.get_current_temp }}</div>
-                                <div class="pull-left">{{ enviro.temp_probe_change_current }}</div>
-                                <hr/>
+                                <div class="row">
+                                    <div class="col-md-12"><strong>{{ enviro.name }}</strong></div>
+                                    <hr/>
+                                    <div class="col-md-12">
+                                        <dl class="dl-horizontal">
+                                            {% if enviro.temp_probe %}
+                                                <dt>Current temp:</dt><dd>{{ enviro.get_current_temp.temperature }}</dd>
+                                                <dt>Ideal temp:</dt><dd>{{ enviro.temp_probe_change_current.temp_ideal }}</dd>
+                                            {% endif %}
+                                            {% if enviro.heater %}
+                                                <dt>Heater:</dt><dd>{{ enviro.heater.is_low|yesno:"Off,On" }}</dd>
+                                            {% endif %}
+                                            {% if enviro.light %}
+                                                <dt>Lights:</dt><dd>{{ enviro.light.is_low|yesno:"Off,On" }}</dd>
+                                            {% endif %}
+                                        </dl>
+                                    </div>
+                                </div>
                             {% endfor %}
                         </div>
                     </div>
