@@ -55,6 +55,7 @@ class RaspPiChannel(models.Model):
 class TempProbe(models.Model):
     channel = models.ForeignKey(RaspPiChannel)
     notes = models.TextField(blank=True, null=True)
+    serial_num = models.CharField(max_length=16)
 
     def get_temp(self):
         stream = open(self.channel.get_input())
@@ -128,6 +129,9 @@ class TempProbeChange(models.Model):
     temp_low = models.DecimalField(max_digits=3, decimal_places=1)
     temp_high = models.DecimalField(max_digits=3, decimal_places=1)
     temp_high_high = models.DecimalField(max_digits=3, decimal_places=1)
+
+    class Meta:
+        ordering = ['datetime_changed'] 
 
     def save(self, *args, **kwargs):
         if self.pk is not None:

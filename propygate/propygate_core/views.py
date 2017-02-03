@@ -16,3 +16,4 @@ class Home(TemplateView):
         context['DEBUG'] = settings.DEBUG
         context['enviros'] = e_models.Enviro.objects.all()
         return context
+

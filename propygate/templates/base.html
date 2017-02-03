@@ -14,6 +14,7 @@
 			<link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css?v={{ VERSION }}" rel="stylesheet">
 			<link href="{{ STATIC_URL }}adminlte/css/AdminLTE.min.css?v={{ VERSION }}" rel="stylesheet">
 			<link href="{{ STATIC_URL }}adminlte/css/skin-green-light.min.css?v={{ VERSION }}" rel="stylesheet">
+			<link href="{{ STATIC_URL }}propygate_core/css/propygate_core.css?v={{ VERSION }}" rel="stylesheet">
 
 			{% block extra_css %}{% endblock extra_css %}
         {% endblock %}
@@ -62,7 +63,7 @@
                             <ul class="nav navbar-nav navbar-right">
 
                                 <li class="no-hover"><a><i class="fa fa-user-circle-o"></i> {{ request.user.username }}</a></li>
-                                <li class="margin-right-10">
+                                <li class="margin-r-10">
                                     <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
                                 </li>
 
@@ -70,7 +71,7 @@
                         {% else %}
 
                             <ul class="nav navbar-nav navbar-right ">
-                                <li class="margin-right-10">
+                                <li class="margin-r-10">
                                     <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
                                 </li>
                             </ul>

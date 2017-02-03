@@ -3,5 +3,6 @@ propygate/settings/local.py
 propygate/db.sqlite3
 propygate/static/
 .idea/
+logs/
 
 *.py[co]

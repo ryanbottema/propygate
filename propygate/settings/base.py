@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'propygate.enviro',
     'propygate.propygate_core',
 #    'django_celery_beat',
-	'djcelery'
+    'djcelery'
 ]
 
 MIDDLEWARE = [
@@ -136,14 +136,110 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+LOG_DIR = SITE_ROOT + '/logs/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(levelname)s [%(name)s: %(lineno)s] -- %(message)s',
+            'datefmt': '%m-%d-%Y %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'logfile': {
+            'level': 'INFO',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR + 'logfile.log',
+            'maxBytes': 1024*1024*5,
+            'backupCount': 3,
+            'formatter': 'standard'
+        },
+        'debug_logfile': {
+            'level': 'DEBUG',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR + 'debug_logfile.log',
+            'maxBytes': 1024*1024*5,
+            'backupCount': 5,
+            'formatter': 'standard'
+        },
+        'default_logger': {
+            'level': 'WARNING',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR + 'default.log',
+            'maxBytes': 1024*1024*5,
+            'backupCount': 2,
+            'formatter': 'standard'
+        },
+        'celery_logger': {
+            'level': 'DEBUG',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR + 'celery.log',
+            'maxBytes': 1024*1024*5,
+            'backupCount': 2,
+            'formatter': 'standard'
+        },
+        'celery_task_logger': {
+            'level': 'DEBUG',
+            'filters': None,
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR + 'celery_tasks.log',
+            'maxBytes': 1024*1024*5,
+            'backupCount': 2,
+            'formatter': 'standard'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['default_logger'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'django': {
+            'handlers': ['logfile'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'celery.task': {
+            'handlers': ['celery_task_logger'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'celery': {
+            'handlers': ['celery_logger'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    }
+}
 
 # CELERY STUFF
+import djcelery
+djcelery.setup_loader()
+#BROKER_URL = 'django://'
+
+#BROKER_HOST = "localhost"
+#BROKER_BACKEND="redis"
+#REDIS_PORT=6379
+#REDIS_HOST = "localhost"
 BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Africa/Nairobi'
+
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
