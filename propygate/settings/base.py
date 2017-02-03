@@ -83,6 +83,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
 
+                'propygate.propygate_core.context_processors.propygate_core'
             ],
         },
     },

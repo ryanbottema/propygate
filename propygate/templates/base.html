@@ -10,11 +10,11 @@
 
         {% block css %}
 
-			<link href="{{ STATIC_URL }}font-awesome/css/font-awesome.min.css?v={{ VERSION }}" rel="stylesheet">
-			<link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css?v={{ VERSION }}" rel="stylesheet">
-			<link href="{{ STATIC_URL }}adminlte/css/AdminLTE.min.css?v={{ VERSION }}" rel="stylesheet">
-			<link href="{{ STATIC_URL }}adminlte/css/skin-green-light.min.css?v={{ VERSION }}" rel="stylesheet">
-			<link href="{{ STATIC_URL }}propygate_core/css/propygate_core.css?v={{ VERSION }}" rel="stylesheet">
+			<link href="{{ STATIC_URL }}font-awesome/css/font-awesome.min.css?v={{ STATIC_VERSION }}" rel="stylesheet">
+			<link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css?v={{ STATIC_VERSION }}" rel="stylesheet">
+			<link href="{{ STATIC_URL }}adminlte/css/AdminLTE.min.css?v={{ STATIC_VERSION }}" rel="stylesheet">
+			<link href="{{ STATIC_URL }}adminlte/css/skin-green-light.min.css?v={{ STATIC_VERSION }}" rel="stylesheet">
+			<link href="{{ STATIC_URL }}propygate_core/css/propygate_core.css?v={{ STATIC_VERSION }}" rel="stylesheet">
 
 			{% block extra_css %}{% endblock extra_css %}
         {% endblock %}
@@ -23,7 +23,7 @@
             var siteConfig = {
                 VERSION: '{{ VERSION }}',
                 STATIC_URL: '{{ STATIC_URL }}',
-                DEBUG: '{{ DEBUG }}'
+                DEBUG: '{{ DEBUG }}',
             };
         </script>
 
@@ -123,7 +123,7 @@
                         </ul>
                         <h4 class="control-sidebar-heading">Admin Options</h4>
                         <ul class="control-sidebar-menu">
-                            <li><a href="{% url 'admin:index' %}" class="margin-l-10">
+                            <li><a href="{% url 'admin:index' %}" class="margin-l-10 control-sidebar-subheading">
                                 <i class="fa fa-cog"></i> Admin
                             </a></li>
                         </ul>

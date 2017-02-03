@@ -17,8 +17,8 @@
 {% block content %}
 
     <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-sm-8">
+        <div class="col-sm-8"></div>
+        <div class="col-sm-4">
 
             <div class="box box-success">
 
@@ -34,8 +34,8 @@
                         <div class="col-md-12">
                             {% for enviro in enviros %}
 								<div class="row">
-									<div class="col-md-12"><strong>{{ enviro.name }}</strong></div>
-									<hr/>
+									<div class="col-md-12 border-b"><strong>{{ enviro.name }}</strong></div>
+									
 									<div class="col-md-12">
 										<dl class="dl-horizontal">
 											{% if enviro.temp_probe %}
@@ -46,7 +46,11 @@
 												<dt>Heater:</dt><dd>{{ enviro.heater.is_low|yesno:"On,Off" }}</dd>
 											{% endif %}
 											{% if enviro.light %}
-												<dt>Lights:</dt><dd>{{ enviro.light.is_low|yesno:"On,Off" }}</dd>
+												<dt>Lights:</dt>
+												<dd>
+													<span>{{ enviro.light.is_low|yesno:"On,Off" }}</span>
+													<span id="light-toggle-{{ enviro.light.channel_id }}" class="btn btn-xs btn-flat btn-default">Turn{{ enviro.light.is_low|yesno:"Off,On" }}</span>
+												</dd>
 											{% endif %}
 										</dl>
 									</div>
