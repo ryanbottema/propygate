@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'propygate.enviro',
     'propygate.propygate_core',
 #    'django_celery_beat',
     'djcelery'
@@ -123,15 +122,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
+TIME_ZONE = 'America/Toronto'
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+SITE_ID = 1
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
+DATE_INPUT_FORMATS = ("%d %m %Y",)
+FORMAT_MODULE_PATH = 'formats'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
@@ -238,7 +236,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Africa/Nairobi'
+CELERY_TIMEZONE = 'America/Toronto'
 
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 

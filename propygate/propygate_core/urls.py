@@ -8,6 +8,8 @@ import views
 urlpatterns = [
 
     url(r'^$', views.Home.as_view(), name="home"),
-	url(r'^login$', login, name="login"),
+    url(r'^getchartdata$', views.GetChartData.as_view(), name='get_chart_data'),
+    url(r'^updatechartdata$', views.UpdateChartData.as_view(), name='update_chart_data'),
+    url(r'^login$', login, name="login"),
     url(r'^logout$', logout, {'next_page': reverse_lazy("login")}, name="logout"),
 ]

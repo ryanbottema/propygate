@@ -8,16 +8,26 @@
 {% endblock extra_css %}
 
 {% block require_javascript %}
-    <!--require(['shipment']);-->
+    require(['home']);
 {% endblock require_javascript %}
 
 {% block extra_js %}
+    <script type="text/javascript">
+        var home_vars = {
+            get_chart_data_url: "{% url 'get_chart_data' %}",
+            update_chart_data_url: "{% url 'update_chart_data' %}"
+        };
+    </script>
 {% endblock extra_js %}
 
 {% block content %}
 
     <div class="row">
-        <div class="col-sm-8"></div>
+        <div class="col-sm-8">
+
+            <div id="enviro-chart"></div>
+
+        </div>
         <div class="col-sm-4">
 
             <div class="box box-success">
@@ -40,8 +50,9 @@
 										<dl class="dl-horizontal">
 											{% if enviro.temp_probe %}
 												<dt>Current temp:</dt><dd>{{ enviro.get_current_temp.temperature }}</dd>
+                                                <dt>Ideal temp:</dt><dd>{{ enviro.get_current_ideals.temp_ideal }}</dd>
 											{% endif %}
-												<dt>Ideal temp:</dt><dd>{{ enviro.temp_probe_change_current.temp_ideal }}</dd>
+
 											{% if enviro.heater %}
 												<dt>Heater:</dt><dd>{{ enviro.heater.is_low|yesno:"On,Off" }}</dd>
 											{% endif %}

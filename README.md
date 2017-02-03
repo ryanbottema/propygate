@@ -18,11 +18,11 @@ Propygate uses the following (and more):
 	Apache2 web server
 
 **Basic setup:**
+
 	clone this repo
 	pip install -r requirements.txt
 	Install [Redis](https://redis.io/topics/quickstart)
 	apt-get install apache2
-	
 	service apache2 restart
 	Configure some enviros.
 	redis-server <path to redis.conf>
