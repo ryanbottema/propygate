@@ -1,0 +1,19 @@
+.y.axis .tick line {
+    stroke: #ddd;
+    /*shape-rendering: crispEdges;*/
+}
+.line {
+    fill: none;
+    /*stroke-width: 1.5px;*/
+}
+#mouse-tracker,
+.context .brush {
+    stroke: #E6E7E8;
+    stroke-width: 1px;
+}
+line.horizontalGrid {
+    fill: none;
+    shape-rendering: crispEdges;
+    /*stroke: #bbb;*/
+    stroke-width: 1px;
+}

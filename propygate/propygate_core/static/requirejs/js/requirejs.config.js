@@ -24,7 +24,7 @@ require.config({
         //listable: siteConfig.STATIC_URL + 'listable/js/listable',
         //lodash: siteConfig.STATIC_URL + 'lodash/js/lodash.min',
         //multiselect: siteConfig.STATIC_URL + 'multiselect/js/bootstrap.multiselect',
-        //moment: siteConfig.STATIC_URL + 'moment/js/moment.min',
+        moment: siteConfig.STATIC_URL + 'moment/js/moment.min',
         //select2: siteConfig.STATIC_URL + 'select2/js/select2.min',
         slimscroll: siteConfig.STATIC_URL + 'slimscroll/js/jquery.slimscroll.min',
 

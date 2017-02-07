@@ -5,6 +5,7 @@
 {% block extra_css %}
     <!--<link href="{{ STATIC_URL }}datepicker/css/bootstrap-datepicker.css?v={{ VERSION }}" rel="stylesheet">-->
     <!--<link href="{{ STATIC_URL }}select2/css/select2.min.css?v={{ VERSION }}" rel="stylesheet">-->
+    <link href="{{ STATIC_URL }}propygate_core/css/home.css?v={{ STATIC_VERSION }}" rel="stylesheet">
 {% endblock extra_css %}
 
 {% block require_javascript %}
@@ -24,10 +25,24 @@
 
     <div class="row">
         <div class="col-sm-8">
+            <div class="box box-success">
 
-            <div id="enviro-chart"></div>
-
+                <div class="box-header">
+                    <h3 class="box-title">
+                        <i class="fa fa-line-chart fa-fw" aria-hidden="true"></i>
+                        Past 24 hours
+                    </h3>
+                </div>
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="enviro-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <div class="col-sm-4">
 
             <div class="box box-success">
