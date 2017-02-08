@@ -12,7 +12,7 @@ require.config({
         adminlte: siteConfig.STATIC_URL + 'adminlte/js/app.min',
         adminlte_config: siteConfig.STATIC_URL + 'adminlte/js/adminlte.config',
         bootstrap: siteConfig.STATIC_URL + 'bootstrap/js/bootstrap.min',
-        d3: siteConfig.STATIC_URL + 'd3/js/d3.min',
+        d3: siteConfig.STATIC_URL + 'd3/js/d3',
         //daterangepicker: siteConfig.STATIC_URL + 'daterangepicker/js/daterangepicker',
         //datatables: siteConfig.STATIC_URL + 'listable/js/jquery.dataTables.min',
         //'datatables.bootstrap': siteConfig.STATIC_URL + 'listable/js/jquery.dataTables.bootstrap',

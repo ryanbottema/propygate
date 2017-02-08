@@ -83,16 +83,24 @@ class GetChartData(View):
                         'datetime_toggled': timezone.localtime(rt.datetime_toggled),
                         'is_on': rt.is_on,
                         'enviro_id': env.id,
+                        'fake_toggle': False,
                         'relay_controller': rt.relay_controller_id,
                         'x': int(format(rt.datetime_toggled, 'U')) * 1000
                     })
 
-                if len(light_data) > 0 and not light_data[0]['is_on']:
-                    light_data.insert(0, {
-                        'x': int(format(timezone.localtime(timezone.now() - timezone.timedelta(hours=24)), 'U')) * 1000 - 1,
-                        'is_on': True,
-                        'fake_toggle': True
-                    })
+                if len(light_data) > 0:
+                    if light_data[0]['is_on'] and light_data[0]['fake_toggle']:
+                        light_data.insert(0, {
+                            'x': int(format(timezone.localtime(timezone.now() - timezone.timedelta(hours=24)), 'U')) * 1000,
+                            'is_on': True,
+                            'fake_toggle': True
+                        })
+                    if light_data[len(light_data) - 1]['is_on']:
+                        light_data.append({
+                            'is_on': True,
+                            'fake_toggle': True,
+                            'x': int(format(timezone.now(), 'U')) * 1000
+                        })
             else:
                 light_data = False
 
@@ -112,16 +120,23 @@ class GetChartData(View):
                         'datetime_toggled': timezone.localtime(ht.datetime_toggled),
                         'is_on': ht.is_on,
                         'enviro_id': env.id,
+                        'fake_toggle': False,
                         'relay_controller': ht.relay_controller_id,
                         'x': int(format(timezone.localtime(ht.datetime_toggled), 'U')) * 1000
                     })
-                if len(heater_data) > 0 and not heater_data[0]['is_on']:
-                    heater_data.insert(0, {
-                        'x': int(
-                            format(timezone.localtime(timezone.now() - timezone.timedelta(hours=24)), 'U')) * 1000 - 1,
-                        'is_on': True,
-                        'fake_toggle': True
-                    })
+                if len(heater_data) > 0:
+                    if heater_data[0]['is_on'] and heater_data[0]['fake_toggle']:
+                        heater_data.insert(0, {
+                            'x': int(format(timezone.localtime(timezone.now() - timezone.timedelta(hours=24)), 'U')) * 1000,
+                            'is_on': True,
+                            'fake_toggle': True
+                        })
+                    if heater_data[len(heater_data) - 1]['is_on']:
+                        heater_data.append({
+                            'is_on': True,
+                            'fake_toggle': True,
+                            'x': int(format(timezone.now(), 'U')) * 1000
+                        })
             else:
                 heater_data = False
 
@@ -141,10 +156,15 @@ class GetChartData(View):
         }, safe=False)
 
 
-class UpdateChartData(View):
+class ToggleRelay(View):
 
-    def get(self, *args, **kwargs):
+    def post(self, *args, **kwargs):
+        relay_id = self.request.POST.get('relay_id')
+
+        rc = models.RelayController.objects.get(pk=relay_id)
+        rc.toggle_on_off()
 
         return JsonResponse({
-            '': None,
-        })
+            'changed': True
+        }, safe=False)
+
