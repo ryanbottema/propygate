@@ -1,25 +1,13 @@
 from __future__ import absolute_import, unicode_literals
 from propygate.celery import app
 
+from django.utils import timezone
+
 from . import models
 
 from celery.utils.log import get_task_logger
 logger = get_task_logger('celery.task')
 
-
-@app.task
-def add(x, y):
-    return x + y
-
-
-@app.task
-def mul(x, y):
-    return x * y
-
-
-@app.task
-def xsum(numbers):
-    return sum(numbers)
 
 @app.task
 def check_enviro(enviro_id):
@@ -31,12 +19,29 @@ def check_enviro(enviro_id):
         heater = enviro.heater
         light = enviro.light
         ideals = enviro.temp_probe_change_current
-    
-        if temp_probe and ideals:
-            pass
-        print 'Checking enviro' + str(enviro_id)
+        
         logger.info('Checking enviro' + str(enviro_id))
-
-        models.TempRecord.objects.create(enviro=enviro, temperature=28)
+    
+        temp = enviro.record_temp() if temp_probe else None
+            
+        if ideals and temp and heater:
+            tl = ideals.temp_low
+            tll = ideals.temp_low_low
+            th = ideals.temp_high
+            thh = ideals.temp_high_high
+            
+            if temp < tll:
+                heater.turn_on()
+            elif temp > tl:
+                heater.turn_off()
+                
+        hour = timezone.now().hour
+        
+        if light:
+            if hour > 5 and hour < 22:
+                light.turn_on()
+            else:
+                light.turn_off()
+        
     except Exception as e:
         logger.info('Error: ' + str(e))

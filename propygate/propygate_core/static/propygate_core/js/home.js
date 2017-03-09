@@ -32,6 +32,7 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
     
     var num_records = 0;
     function go_ajax() {
+        console.log(num_records);
         $.ajax({
             url: home_vars.get_chart_data_url,
             data: {num_records: num_records}
@@ -305,13 +306,14 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
     setInterval(go_ajax, 1000 * 60 * refresh_mins);
     
     $('.relay-btn').click(function() {
+        console.log(this);
         var btn = $(this);
         var relay_id = btn.attr('data-relay-id');
         btn.prop('disabled', true);
         
         $.ajax({
             url: home_vars.toggle_relay_url,
-            method: 'POST',
+            
             data: {relay_id: relay_id}
         }).done(function (res_enviros_data) {
             go_ajax();

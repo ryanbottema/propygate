@@ -8,6 +8,12 @@ from django.views.generic import TemplateView, CreateView, DetailView, View
 from . import models
 
 
+def _print(what):
+    print_file = open('/home/propygate/logs/print.log', 'a')
+    print_file.write('\n%s' % what)
+    print_file.close()
+
+
 class Home(TemplateView):
     template_name = 'propygate_core/home.html'
 
@@ -15,6 +21,7 @@ class Home(TemplateView):
         context = super(Home, self).get_context_data(**kwargs)
         
         context['enviros'] = models.Enviro.objects.all().select_related('light', 'heater', 'temp_probe')
+        context['is_error'] = models.IS_ERROR
         return context
 
 
@@ -23,6 +30,8 @@ class GetChartData(View):
     def get(self, *args, **kwargs):
 
         num_records = len(models.TempRecord.objects.all()) + len(models.RelayControllerToggle.objects.all())
+        
+        print self.request.GET.get('num_records')
         if int(self.request.GET.get('num_records')) == num_records:
             return JsonResponse({'changed': False, 'num_records': num_records}, safe=False)
 
@@ -158,9 +167,8 @@ class GetChartData(View):
 
 class ToggleRelay(View):
 
-    def post(self, *args, **kwargs):
-        relay_id = self.request.POST.get('relay_id')
-
+    def get(self, *args, **kwargs):
+        relay_id = self.request.GET.get('relay_id')
         rc = models.RelayController.objects.get(pk=relay_id)
         rc.toggle_on_off()
 

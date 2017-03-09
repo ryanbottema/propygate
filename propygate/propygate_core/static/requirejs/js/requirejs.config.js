@@ -1,11 +1,11 @@
 
 require.config({
-    urlArgs: 'v=' + siteConfig.VERSION,
-    // urlArgs: (function () {
-    //     if (siteConfig.DEBUG == 'True')
-    //         return 'v=' + Math.random();
-    //     return 'v=' + siteConfig.VERSION;
-    // }()),
+    //urlArgs: 'v=' + siteConfig.VERSION,
+    urlArgs: (function () {
+        if (siteConfig.DEBUG == 'True')
+            return 'v=' + Math.random();
+        return 'v=' + siteConfig.VERSION;
+    }()),
     baseUrl: siteConfig.STATIC_URL,
     paths: {
         // Third party:

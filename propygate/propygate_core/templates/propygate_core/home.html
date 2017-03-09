@@ -23,6 +23,14 @@
 
 {% block content %}
 
+    {% if is_error %}
+    <div class="row">
+        <div class="col-md-12">
+            {{ is_error }}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-sm-8">
             <div class="box box-success">
@@ -72,14 +80,14 @@
 												<dt>Heater:</dt>
 												<dd>
 													<span id="heater-is-{{ enviro.id }}"></span>
-													<span id="heater-toggle-{{ enviro.id }}" class="btn btn-xs btn-flat btn-default relay-btn" data-relay-id="{{ enviro.heater.id }}">Turn {{ enviro.heater.is_low|yesno:"Off,On" }}</span>
+													<span id="heater-toggle-{{ enviro.id }}" class="btn btn-xs btn-flat btn-default relay-btn" data-relay-id="{{ enviro.heater.id }}">Turn {{ enviro.heater.is_low|yesno:"On,Off" }}</span>
 												</dd>
 											{% endif %}
 											{% if enviro.light %}
 												<dt>Lights:</dt>
 												<dd>
 													<span id="light-is-{{ enviro.id }}"></span>
-													<span id="light-toggle-{{ enviro.id }}" class="btn btn-xs btn-flat btn-default relay-btn" data-relay-id="{{ enviro.light.id }}">Turn {{ enviro.light.is_low|yesno:"Off,On" }}</span>
+													<span id="light-toggle-{{ enviro.id }}" class="btn btn-xs btn-flat btn-default relay-btn" data-relay-id="{{ enviro.light.id }}">Turn {{ enviro.light.is_low|yesno:"On,Off" }}</span>
 												</dd>
 											{% endif %}
 										</dl>

@@ -1,3 +1,4 @@
+import subprocess
 
 from django.conf import settings
 from django.db import models
@@ -5,22 +6,32 @@ from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
-try:
-    import RPi.GPIO as GPIO
-    from RPi.GPIO import output, setup
+#try:
+import RPi.GPIO as GPIO
+from RPi.GPIO import output, setup
 
-    GPIO.setmode(GPIO.BOARD)
-    GPIO_IS_IN = {True: GPIO.IN, False: GPIO.OUT}
-    GPIO_IS_HIGH = {True: GPIO.HIGH, False: GPIO.LOW}
-except:
-    GPIO_IS_IN = {True: 'INPUT!', False: 'OUTPUT!'}
-    GPIO_IS_HIGH = {True: 'HIGH!', False: 'LOW!'}
+GPIO.setmode(GPIO.BOARD)
+GPIO_IS_IN = {True: GPIO.IN, False: GPIO.OUT}
+GPIO_IS_HIGH = {True: GPIO.HIGH, False: GPIO.LOW}
+IS_ERROR = False
+#except Exception as e:
+#    GPIO_IS_IN = {True: 'INPUT!', False: 'OUTPUT!'}
+#    GPIO_IS_HIGH = {True: 'HIGH!', False: 'LOW!'}
+#
+#    def output(num, high_low):
+#        print 'Beep Boop: Turning GPIO %s %s' % (num, high_low)
+#
+#    def setup(num, is_input, initial=None):
+#        print 'Beep Boop: Setting up GPIO channel %s as %s with initial %s.' % (num, is_input, initial)
+#
+#    IS_ERROR = e
 
-    def output(num, high_low):
-        print 'Beep Boop: Turning GPIO %s %s' % (num, high_low)
-
-    def setup(num, is_input, initial=None):
-        print 'Beep Boop: Setting up GPIO channel %s as %s with initial %s.' % (num, is_input, initial)
+def _output(chan_num, high_low):
+    try:
+        output(chan_num, high_low)
+    except RuntimeError:
+        setup(chan_num, False, initial=GPIO_IS_HIGH[False])
+        output(chan_num, high_low)
 
 
 class RaspPi(models.Model):
@@ -45,19 +56,19 @@ class RaspPiChannel(models.Model):
         if not bool(self.is_input):
             self.is_low = not self.is_low
             self.save()
-            output(self.channel_num, GPIO_IS_HIGH[self.is_low])
+            _output(self.channel_num, GPIO_IS_HIGH[self.is_low])
 
     def turn_low(self):
         if not bool(self.is_input):
             self.is_low = False
             self.save()
-            output((self.channel_num, GPIO_IS_HIGH[self.is_low]))
+            _output(self.channel_num, GPIO_IS_HIGH[self.is_low])
 
     def turn_high(self):
         if not bool(self.is_input):
             self.is_low = True
             self.save()
-            output((self.channel_num, GPIO_IS_HIGH[self.is_low]))
+            _output(self.channel_num, GPIO_IS_HIGH[self.is_low])
 
     def __unicode__(self):
         return 'IO Channel %s %s' % (self.channel_num, '(input)' if self.is_input else '(output)')
@@ -67,9 +78,9 @@ class TempProbe(models.Model):
     channel = models.ForeignKey(RaspPiChannel, on_delete=models.CASCADE)
     notes = models.TextField(blank=True, null=True)
     serial_num = models.CharField(max_length=16)
-
+    
     def get_temp(self):
-        stream = open(self.channel.get_input())
+        stream = open('/sys/bus/w1/devices/28-%s/w1_slave' % self.serial_num)
         reading = stream.read()
         stream.close()
         data = int(reading.split('t=')[1])
@@ -77,7 +88,7 @@ class TempProbe(models.Model):
         return temp
 
     def __unicode__(self):
-        return 'TempProbe on %s' % self.channel.channel_num
+        return 'TempProbe %s' % self.serial_num
 
     def get_input(self):
         return self.channel.input_string % self.serial_num
@@ -93,12 +104,18 @@ class RelayController(models.Model):
         return 'Relay on channel %s' % self.channel.channel_num
 
     def toggle_on_off(self):
-        print 'toggling'
-        print self.channel.is_low
         self.channel.toggle_high_low()
-        print self.channel.is_low
-
         RelayControllerToggle.objects.create(relay_controller=self, is_on=not self.channel.is_low)
+        
+    def turn_on(self):
+        if self.channel.is_low:
+            self.channel.turn_high()
+            RelayControllerToggle.objects.create(relay_controller=self, is_on=True)
+            
+    def turn_off(self):
+        if self.channel.is_high:
+            self.channel.turn_low()
+            RelayControllerToggle.objects.create(relay_controller=self, is_on=False)
 
 
 class Enviro(models.Model):
@@ -108,6 +125,12 @@ class Enviro(models.Model):
 
     name = models.CharField(max_length=32)
     notes = models.TextField(blank=True, null=True)
+
+    def record_temp(self):
+        if self.temp_probe:
+            temp = TempRecord(enviro=self, temperature=self.temp_probe.get_temp())
+            temp.save()
+            return temp
 
     def get_current_temp(self):
         return TempRecord.objects.filter(enviro=self).latest()
@@ -148,7 +171,7 @@ class RelayControllerToggle(models.Model):
 
 
 class Ideals(models.Model):
-    datetime_changed = models.DateTimeField()
+    datetime_changed = models.DateTimeField(blank=True, null=True)
     enviro = models.ForeignKey(Enviro, on_delete=models.CASCADE)
 
     temp_ideal = models.DecimalField(max_digits=3, decimal_places=1)
@@ -167,7 +190,6 @@ class Ideals(models.Model):
             tpc = Ideals(
                 datetime_changed=timezone.now(),
                 enviro=self.enviro,
-                measurement_frequency=self.measurement_frequency,
                 temp_ideal=self.temp_ideal,
                 temp_low_low=self.temp_low_low,
                 temp_low=self.temp_low,
