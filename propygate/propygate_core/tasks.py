@@ -9,6 +9,12 @@ from celery.utils.log import get_task_logger
 logger = get_task_logger('celery.task')
 
 
+def _print(what):
+    print_file = open('/home/propygate/logs/print.log', 'a')
+    print_file.write('\n%s' % what)
+    print_file.close()
+    
+    
 @app.task
 def check_enviro(enviro_id):
     
@@ -18,11 +24,10 @@ def check_enviro(enviro_id):
         temp_probe = enviro.temp_probe
         heater = enviro.heater
         light = enviro.light
-        ideals = enviro.temp_probe_change_current
-        
-        logger.info('Checking enviro' + str(enviro_id))
+        ideals = enviro.get_current_ideals()
     
         temp = enviro.record_temp() if temp_probe else None
+        temp = temp.temperature
             
         if ideals and temp and heater:
             tl = ideals.temp_low
@@ -45,3 +50,4 @@ def check_enviro(enviro_id):
         
     except Exception as e:
         logger.info('Error: ' + str(e))
+        _print('Error: ' + str(e))

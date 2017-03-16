@@ -28,7 +28,8 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
         enviro_heater,
         heater_clip,
         mouse_tracker,
-        refresh_mins = 0.5;
+        refresh_mins = 1,
+        hours_to_view = 24;
     
     var num_records = 0;
     function go_ajax() {
@@ -108,7 +109,7 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
 
         xScale = d3.scaleTime().range([0, width]);
         yScale = d3.scaleLinear().range([height, 0]);
-        xScale.domain([moment().subtract({hours: 24}).valueOf(), moment().valueOf()]);
+        xScale.domain([moment().subtract({hours: hours_to_view}).valueOf(), moment().valueOf()]);
         maxY = findMaxY(enviros_data);
         minY = findMinY(enviros_data);
         yScale.domain(yBuff(minY, maxY));

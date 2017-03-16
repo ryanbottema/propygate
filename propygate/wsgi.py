@@ -7,6 +7,7 @@ For more information on this file, see
 https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 """
 
+    
 import os
 
 from django.core.wsgi import get_wsgi_application
@@ -14,3 +15,13 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "propygate.settings.local")
 
 application = get_wsgi_application()
+
+from django.core.management import call_command
+#call_command('celery beat')
+#call_command('celery worker')
+
+#def application(environ, start_response):
+#    if environ['mod_wsgi.process_group'] != '': 
+#        import signal
+#        os.kill(os.getpid(), signal.SIGINT)
+#    return ["killed"]

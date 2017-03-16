@@ -8,7 +8,7 @@ from django.utils import timezone
 
 #try:
 import RPi.GPIO as GPIO
-from RPi.GPIO import output, setup
+from RPi.GPIO import output, setup, input
 
 GPIO.setmode(GPIO.BOARD)
 GPIO_IS_IN = {True: GPIO.IN, False: GPIO.OUT}
@@ -26,6 +26,13 @@ IS_ERROR = False
 #
 #    IS_ERROR = e
 
+
+def _print(what):
+    print_file = open('/home/propygate/logs/print.log', 'a')
+    print_file.write('\n%s' % what)
+    print_file.close()
+    
+
 def _output(chan_num, high_low):
     try:
         output(chan_num, high_low)
@@ -33,6 +40,15 @@ def _output(chan_num, high_low):
         setup(chan_num, False, initial=GPIO_IS_HIGH[False])
         output(chan_num, high_low)
 
+
+def _output_status(chan_num):
+    try:
+        state = input(chan_num)
+    except RuntimeError:
+        setup(chan_num, False, initial=GPIO_IS_HIGH[False])
+        state = input(chan_num)
+    return state
+        
 
 class RaspPi(models.Model):
     model = models.CharField(max_length=128)
@@ -54,21 +70,28 @@ class RaspPiChannel(models.Model):
 
     def toggle_high_low(self):
         if not bool(self.is_input):
+            if _output_status(self.channel_num) == 0:
+                turn = GPIO.HIGH
+            else:
+                turn = GPIO.LOW
             self.is_low = not self.is_low
+            
             self.save()
-            _output(self.channel_num, GPIO_IS_HIGH[self.is_low])
+            _output(self.channel_num, turn)
 
     def turn_low(self):
         if not bool(self.is_input):
-            self.is_low = False
-            self.save()
-            _output(self.channel_num, GPIO_IS_HIGH[self.is_low])
+            if _output_status(self.channel_num) == 1:
+                self.is_low = False
+                self.save()
+                _output(self.channel_num, GPIO.LOW)
 
     def turn_high(self):
         if not bool(self.is_input):
-            self.is_low = True
-            self.save()
-            _output(self.channel_num, GPIO_IS_HIGH[self.is_low])
+            if _output_status(self.channel_num) == 0:
+                self.is_low = True
+                self.save()
+                _output(self.channel_num, GPIO.HIGH)
 
     def __unicode__(self):
         return 'IO Channel %s %s' % (self.channel_num, '(input)' if self.is_input else '(output)')
@@ -108,14 +131,14 @@ class RelayController(models.Model):
         RelayControllerToggle.objects.create(relay_controller=self, is_on=not self.channel.is_low)
         
     def turn_on(self):
-        if self.channel.is_low:
-            self.channel.turn_high()
-            RelayControllerToggle.objects.create(relay_controller=self, is_on=True)
+        #if self.channel.is_low:
+        self.channel.turn_high()
+        RelayControllerToggle.objects.create(relay_controller=self, is_on=True)
             
     def turn_off(self):
-        if self.channel.is_high:
-            self.channel.turn_low()
-            RelayControllerToggle.objects.create(relay_controller=self, is_on=False)
+        #if not self.channel.is_low:
+        self.channel.turn_low()
+        RelayControllerToggle.objects.create(relay_controller=self, is_on=False)
 
 
 class Enviro(models.Model):

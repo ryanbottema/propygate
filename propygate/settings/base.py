@@ -180,7 +180,7 @@ LOGGING = {
             'formatter': 'standard'
         },
         'celery_logger': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'filters': None,
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOG_DIR + 'celery.log',
@@ -189,7 +189,7 @@ LOGGING = {
             'formatter': 'standard'
         },
         'celery_task_logger': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'filters': None,
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': LOG_DIR + 'celery_tasks.log',
@@ -211,12 +211,12 @@ LOGGING = {
         },
         'celery.task': {
             'handlers': ['celery_task_logger'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': True,
         },
         'celery': {
             'handlers': ['celery_logger'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
         },
     }
