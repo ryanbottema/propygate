@@ -9,6 +9,7 @@ from django.utils import timezone
 #try:
 import RPi.GPIO as GPIO
 from RPi.GPIO import output, setup, input
+GPIO.cleanup()
 
 GPIO.setmode(GPIO.BOARD)
 GPIO_IS_IN = {True: GPIO.IN, False: GPIO.OUT}
@@ -44,7 +45,9 @@ def _output(chan_num, high_low):
 def _output_status(chan_num):
     try:
         state = input(chan_num)
-    except RuntimeError:
+    except RuntimeError as e:
+        _print('Runtime error. Setting up')
+        _print(e)
         setup(chan_num, False, initial=GPIO_IS_HIGH[False])
         state = input(chan_num)
     return state
@@ -68,9 +71,10 @@ class RaspPiChannel(models.Model):
     def setup(self):
         setup(self.channel_num, GPIO_IS_IN[bool(self.is_input)], initial=GPIO_IS_HIGH[False])
 
-    def toggle_high_low(self):
+    def toggle_high_low(self, rc):
         if not bool(self.is_input):
-            if _output_status(self.channel_num) == 0:
+            was_on =  _output_status(self.channel_num) == 0
+            if was_on:
                 turn = GPIO.HIGH
             else:
                 turn = GPIO.LOW
@@ -78,20 +82,32 @@ class RaspPiChannel(models.Model):
             
             self.save()
             _output(self.channel_num, turn)
+            RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
 
-    def turn_low(self):
+    def turn_low(self, rc):
         if not bool(self.is_input):
-            if _output_status(self.channel_num) == 1:
-                self.is_low = False
-                self.save()
-                _output(self.channel_num, GPIO.LOW)
+        
+            latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
+            _print('Channel %s turning off at %s' % (self.channel_num, timezone.localtime(timezone.now())))
+            if latest.is_on:
+                RelayControllerToggle.objects.create(relay_controller=rc, is_on=False)
+                _print('saved new toggle off')
+            self.is_low = False
+            self.save()
+            _output(self.channel_num, GPIO.LOW)
 
-    def turn_high(self):
+    def turn_high(self, rc):
         if not bool(self.is_input):
-            if _output_status(self.channel_num) == 0:
-                self.is_low = True
-                self.save()
-                _output(self.channel_num, GPIO.HIGH)
+            latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
+            _print('latest details - pk: %s, is_on: %s, time: %s' % (latest.pk, latest.is_on, latest.datetime_toggled))
+            _print('Channel %s turning on at %s' % (self.channel_num, timezone.localtime(timezone.now())))
+            if not latest.is_on:
+                RelayControllerToggle.objects.create(relay_controller=rc, is_on=True)
+                _print('saved new toggle on')
+            self.is_low = True
+            self.save()
+            _output(self.channel_num, GPIO.HIGH)
+                
 
     def __unicode__(self):
         return 'IO Channel %s %s' % (self.channel_num, '(input)' if self.is_input else '(output)')
@@ -127,18 +143,15 @@ class RelayController(models.Model):
         return 'Relay on channel %s' % self.channel.channel_num
 
     def toggle_on_off(self):
-        self.channel.toggle_high_low()
-        RelayControllerToggle.objects.create(relay_controller=self, is_on=not self.channel.is_low)
+        self.channel.toggle_high_low(self)
         
     def turn_on(self):
         #if self.channel.is_low:
-        self.channel.turn_high()
-        RelayControllerToggle.objects.create(relay_controller=self, is_on=True)
+        self.channel.turn_high(self)
             
     def turn_off(self):
         #if not self.channel.is_low:
-        self.channel.turn_low()
-        RelayControllerToggle.objects.create(relay_controller=self, is_on=False)
+        self.channel.turn_low(self)
 
 
 class Enviro(models.Model):
@@ -186,7 +199,7 @@ class RelayControllerToggle(models.Model):
 
     class Meta:
         get_latest_by = 'datetime_toggled'
-        ordering = ['datetime_toggled']
+        ordering = ['-datetime_toggled']
 
     def save(self, *args, **kwargs):
         self.datetime_toggled = timezone.now()

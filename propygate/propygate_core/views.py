@@ -78,7 +78,7 @@ class GetChartData(View):
             if env.light:
                 light_toggles = models.RelayControllerToggle.objects.filter(
                     relay_controller=env.light, datetime_toggled__gte=timezone.now() - timezone.timedelta(hours=24)
-                )
+                ).order_by('datetime_toggled')
                 light_data = []
                 for rt in light_toggles:
 
@@ -116,7 +116,7 @@ class GetChartData(View):
             if env.heater:
                 heater_toggles = models.RelayControllerToggle.objects.filter(
                     relay_controller=env.heater, datetime_toggled__gte=timezone.now() - timezone.timedelta(hours=24)
-                )
+                ).order_by('datetime_toggled')
                 heater_data = []
                 for ht in heater_toggles:
                     if not ht.is_on:

@@ -40,10 +40,11 @@ def check_enviro(enviro_id):
             elif temp > tl:
                 heater.turn_off()
                 
-        hour = timezone.now().hour
+        hour = timezone.localtime(timezone.now()).hour
         
         if light:
-            if hour > 5 and hour < 22:
+            if hour in [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]:
+                _print('hour is %s. Turning on' % hour)
                 light.turn_on()
             else:
                 light.turn_off()
