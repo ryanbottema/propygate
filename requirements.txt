@@ -1,5 +1,5 @@
 
-Django==3.1.7
+Django>=3.1
 django-celery==3.3.1
 django-celery-beat==1.0.0
 pyserial==2.5
