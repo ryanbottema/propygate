@@ -9,6 +9,7 @@ from django.utils import timezone
 try:
     import RPi.GPIO as GPIO
     from GPIO import output, setup, input
+
     GPIO.cleanup()
 
     GPIO.setmode(GPIO.BOARD)
@@ -17,7 +18,9 @@ try:
 except:
     pass
 IS_ERROR = False
-#except Exception as e:
+
+
+# except Exception as e:
 #    GPIO_IS_IN = {True: 'INPUT!', False: 'OUTPUT!'}
 #    GPIO_IS_HIGH = {True: 'HIGH!', False: 'LOW!'}
 #
@@ -34,7 +37,7 @@ def _print(what):
     print_file = open('/home/propygate/logs/print.log', 'a')
     print_file.write('\n%s' % what)
     print_file.close()
-    
+
 
 def _output(chan_num, high_low):
     try:
@@ -53,7 +56,7 @@ def _output_status(chan_num):
         setup(chan_num, False, initial=GPIO_IS_HIGH[False])
         state = input(chan_num)
     return state
-        
+
 
 class RaspPi(models.Model):
     model = models.CharField(max_length=128)
@@ -75,25 +78,25 @@ class RaspPiChannel(models.Model):
 
     def toggle_high_low(self, rc):
         if not bool(self.is_input):
-            was_on =  _output_status(self.channel_num) == 0
+            was_on = _output_status(self.channel_num) == 0
             if was_on:
                 turn = GPIO.HIGH
             else:
                 turn = GPIO.LOW
             self.is_low = not self.is_low
-            
+
             self.save()
             _output(self.channel_num, turn)
-            RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
+            latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
+            if not latest.is_on == was_on:
+                RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
 
     def turn_low(self, rc):
         if not bool(self.is_input):
-        
+
             latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
-            _print('Channel %s turning off at %s' % (self.channel_num, timezone.localtime(timezone.now())))
             if latest.is_on:
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=False)
-                _print('saved new toggle off')
             self.is_low = False
             self.save()
             _output(self.channel_num, GPIO.LOW)
@@ -101,15 +104,11 @@ class RaspPiChannel(models.Model):
     def turn_high(self, rc):
         if not bool(self.is_input):
             latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
-            _print('latest details - pk: %s, is_on: %s, time: %s' % (latest.pk, latest.is_on, latest.datetime_toggled))
-            _print('Channel %s turning on at %s' % (self.channel_num, timezone.localtime(timezone.now())))
             if not latest.is_on:
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=True)
-                _print('saved new toggle on')
             self.is_low = True
             self.save()
             _output(self.channel_num, GPIO.HIGH)
-                
 
     def __unicode__(self):
         return 'IO Channel %s %s' % (self.channel_num, '(input)' if self.is_input else '(output)')
@@ -119,7 +118,7 @@ class TempProbe(models.Model):
     channel = models.ForeignKey(RaspPiChannel, on_delete=models.CASCADE)
     notes = models.TextField(blank=True, null=True)
     serial_num = models.CharField(max_length=16)
-    
+
     def get_temp(self):
         stream = open('/sys/bus/w1/devices/28-%s/w1_slave' % self.serial_num)
         reading = stream.read()
@@ -146,30 +145,38 @@ class RelayController(models.Model):
 
     def toggle_on_off(self):
         self.channel.toggle_high_low(self)
-        
+
     def turn_on(self):
-        #if self.channel.is_low:
+        # if self.channel.is_low:
         self.channel.turn_high(self)
-            
+
     def turn_off(self):
-        #if not self.channel.is_low:
+        # if not self.channel.is_low:
         self.channel.turn_low(self)
 
 
 class Enviro(models.Model):
     light = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_light', on_delete=models.SET_NULL)
     heater = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_heater', on_delete=models.SET_NULL)
-    fan = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_fan', on_delete=models.SET_NULL)
     temp_probe = models.ForeignKey(TempProbe, blank=True, null=True, on_delete=models.SET_NULL)
+    fan = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_fan', on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=32)
     notes = models.TextField(blank=True, null=True)
 
-    def record_temp(self):
+    def record_temp(self, save_temp=True):
         if self.temp_probe:
-            temp = TempRecord(enviro=self, temperature=self.temp_probe.get_temp())
-            temp.save()
-            return temp
+            temp_val = self.temp_probe.get_temp()
+
+            if save_temp:
+                temp = TempRecord(enviro=self, temperature=temp_val)
+                temp.save()
+
+                old_temps = TempRecord.objects.filter(
+                    datetime_recorded__lt=timezone.now() - timezone.timedelta(hours=24))
+                old_temps.delete()
+
+            return temp_val
 
     def get_current_temp(self):
         return TempRecord.objects.filter(enviro=self).latest()
@@ -195,7 +202,6 @@ class TempRecord(models.Model):
 
 
 class RelayControllerToggle(models.Model):
-
     relay_controller = models.ForeignKey(RelayController, on_delete=models.CASCADE)
     datetime_toggled = models.DateTimeField()
     is_on = models.BooleanField(default=False)
