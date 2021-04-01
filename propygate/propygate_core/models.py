@@ -6,14 +6,16 @@ from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
-#try:
-import RPi.GPIO as GPIO
-from RPi.GPIO import output, setup, input
-GPIO.cleanup()
+try:
+    import RPi.GPIO as GPIO
+    from GPIO import output, setup, input
+    GPIO.cleanup()
 
-GPIO.setmode(GPIO.BOARD)
-GPIO_IS_IN = {True: GPIO.IN, False: GPIO.OUT}
-GPIO_IS_HIGH = {True: GPIO.HIGH, False: GPIO.LOW}
+    GPIO.setmode(GPIO.BOARD)
+    GPIO_IS_IN = {True: GPIO.IN, False: GPIO.OUT}
+    GPIO_IS_HIGH = {True: GPIO.HIGH, False: GPIO.LOW}
+except:
+    pass
 IS_ERROR = False
 #except Exception as e:
 #    GPIO_IS_IN = {True: 'INPUT!', False: 'OUTPUT!'}
@@ -157,6 +159,7 @@ class RelayController(models.Model):
 class Enviro(models.Model):
     light = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_light', on_delete=models.SET_NULL)
     heater = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_heater', on_delete=models.SET_NULL)
+    fan = models.ForeignKey(RelayController, blank=True, null=True, related_name='enviro_fan', on_delete=models.SET_NULL)
     temp_probe = models.ForeignKey(TempProbe, blank=True, null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=32)

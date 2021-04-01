@@ -1,4 +1,7 @@
-import RPi.GPIO as GPIO
+try:
+    import RPi.GPIO as GPIO
+except:
+    pass
 
 GPIO.setmode(GPIO.BOARD)
 
@@ -114,7 +117,7 @@ class SeedBox(object):
         elif av_temp < self.temp_ideal - 1:
             self.change_temps(0.5)
         else:
-            print 'Great temp control'
+            print( 'Great temp control')
 
     def heat_control(self):
 

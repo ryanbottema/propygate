@@ -30,8 +30,7 @@ class GetChartData(View):
     def get(self, *args, **kwargs):
 
         num_records = len(models.TempRecord.objects.all()) + len(models.RelayControllerToggle.objects.all())
-        
-        print self.request.GET.get('num_records')
+
         if int(self.request.GET.get('num_records')) == num_records:
             return JsonResponse({'changed': False, 'num_records': num_records}, safe=False)
 
