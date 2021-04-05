@@ -25,9 +25,9 @@ Propygate uses the following (and more):
 	apt-get install apache2
 	service apache2 restart
 	Configure some enviros.
-	redis-server <path to redis.conf>
-	python manage.py celery beat
-	python manage.py celery worker
+	redis-server
+	celery -A propygate worker -l info
+	celery -A propygate worker --beat -l info -S django
 
 ## Tests
 
