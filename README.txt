@@ -26,7 +26,6 @@ Propygate uses the following (and more):
 	service apache2 restart
 	Configure some enviros.
 	redis-server
-	celery -A propygate worker -l info
 	celery -A propygate worker --beat -l info -S django
 
 ## Tests
