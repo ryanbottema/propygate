@@ -1,7 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from celery.app import shared_task
-from propygate_core.celery import app
+# from propygate_core.celery import app
 
 from django.conf import settings
 from django.utils import timezone
