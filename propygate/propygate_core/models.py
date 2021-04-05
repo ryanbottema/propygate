@@ -97,7 +97,7 @@ class RaspPiChannel(models.Model):
 
             if RelayControllerToggle.objects.filter(relay_controller=rc).exists():
                 latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
-                if not latest.is_on:
+                if latest.is_on:
                     RelayControllerToggle.objects.create(relay_controller=rc, is_on=False)
             else:
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=False)
@@ -110,7 +110,7 @@ class RaspPiChannel(models.Model):
         if not bool(self.is_input):
             if RelayControllerToggle.objects.filter(relay_controller=rc).exists():
                 latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
-                if latest.is_on:
+                if not latest.is_on:
                     RelayControllerToggle.objects.create(relay_controller=rc, is_on=True)
             else:
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=True)
