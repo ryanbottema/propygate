@@ -80,14 +80,12 @@ class RaspPiChannel(models.Model):
             if RelayControllerToggle.objects.filter(relay_controller=rc).exists():
                 latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
                 was_on = latest.is_on
-                _print('latest: {}. turning {}'.format(was_on, not was_on))
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
             else:
                 was_on = False
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
 
             turn = GPIO.LOW if was_on else GPIO.HIGH
-            _print('GPIO turing ({} if was_on {} if not) {}'.format(GPIO.HIGH, GPIO.LOW, turn))
             self.is_low = not self.is_low
             self.save()
             _output(self.channel_num, turn)
@@ -157,7 +155,7 @@ class RelayController(models.Model):
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return 'Relay on channel %s' % self.channel.channel_num
+        return 'Relay on channel {} ({})'.format(self.channel.channel_num, self.plug)
 
     def toggle_on_off(self):
         self.channel.toggle_high_low(self)
