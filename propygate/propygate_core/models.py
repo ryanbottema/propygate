@@ -92,6 +92,8 @@ class RaspPiChannel(models.Model):
             self.save()
             _output(self.channel_num, turn)
 
+        self.clean_old_toggles()
+
     def turn_low(self, rc):   # (turn on)
         if not bool(self.is_input):
 
@@ -119,7 +121,12 @@ class RaspPiChannel(models.Model):
             self.save()
             _output(self.channel_num, GPIO.HIGH)
 
-    def __unicode__(self):
+    def clean_old_toggles(self):
+        RelayControllerToggle.objects.filter(
+            datetime_toggled__lt=timezone.now() - timezone.timedelta(hours=48)
+        ).delete()
+
+    def __str__(self):
         return 'IO Channel %s %s' % (self.channel_num, '(input)' if self.is_input else '(output)')
 
 
@@ -136,7 +143,7 @@ class TempProbe(models.Model):
         temp = data / 1000.
         return temp
 
-    def __unicode__(self):
+    def __str__(self):
         return 'TempProbe %s' % self.serial_num
 
     def get_input(self):
@@ -149,7 +156,7 @@ class RelayController(models.Model):
 
     notes = models.TextField(blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Relay on channel %s' % self.channel.channel_num
 
     def toggle_on_off(self):
@@ -193,7 +200,7 @@ class Enviro(models.Model):
     def get_current_ideals(self):
         return Ideals.objects.filter(enviro=self).latest()
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Enviro %s' % self.name
 
 
