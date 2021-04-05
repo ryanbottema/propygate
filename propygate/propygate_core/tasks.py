@@ -6,11 +6,13 @@ from celery.app import shared_task
 from django.conf import settings
 from django.utils import timezone
 
+import logging
+
 from . import models
 
-from celery.utils.log import get_task_logger
+# from celery.utils.log import get_task_logger
 
-logger = get_task_logger('celery.task')
+logger = logging.getLogger('tasks')
 
 
 def _print(what):

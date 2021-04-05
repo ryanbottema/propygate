@@ -179,24 +179,24 @@ LOGGING = {
             'backupCount': 2,
             'formatter': 'standard'
         },
-        'celery_logger': {
-            'level': 'WARNING',
-            'filters': None,
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR + 'celery.log',
-            'maxBytes': 1024*1024*5,
-            'backupCount': 2,
-            'formatter': 'standard'
-        },
-        'celery_task_logger': {
-            'level': 'WARNING',
-            'filters': None,
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': LOG_DIR + 'celery_tasks.log',
-            'maxBytes': 1024*1024*5,
-            'backupCount': 2,
-            'formatter': 'standard'
-        },
+        # 'celery_logger': {
+        #     'level': 'WARNING',
+        #     'filters': None,
+        #     'class': 'logging.handlers.RotatingFileHandler',
+        #     'filename': LOG_DIR + 'celery.log',
+        #     'maxBytes': 1024*1024*5,
+        #     'backupCount': 2,
+        #     'formatter': 'standard'
+        # },
+        # 'celery_task_logger': {
+        #     'level': 'WARNING',
+        #     'filters': None,
+        #     'class': 'logging.handlers.RotatingFileHandler',
+        #     'filename': LOG_DIR + 'celery_tasks.log',
+        #     'maxBytes': 1024*1024*5,
+        #     'backupCount': 2,
+        #     'formatter': 'standard'
+        # },
     },
     'loggers': {
         '': {
@@ -209,6 +209,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'tasks': {
+            'handlers': ['default_logger'],
+            'level': 'WARNING',
+            'propagate': True,
+        }
         # 'celery.task': {
         #     'handlers': ['celery_task_logger'],
         #     'level': 'WARNING',
