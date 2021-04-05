@@ -51,7 +51,7 @@ app.conf.beat_schedule = {
     'check_enviros_every_5min': {
         'task': 'check_enviros',
         'schedule': 5 * 60,   # in seconds
-        'args': (1),   # assume enviro id of 1
+        'args': (1,),   # assume enviro id of 1
     },
     # 'add-every-5-seconds': {
     #     'task': 'multiply_two_numbers',
