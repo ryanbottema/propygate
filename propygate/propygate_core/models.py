@@ -90,6 +90,8 @@ class RaspPiChannel(models.Model):
             _output(self.channel_num, turn)
             if RelayControllerToggle.objects.filter(relay_controller=rc).exists():
                 latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
+
+                _print('{}   |   {}  |     {}'.format(self.channel_num, latest.is_on, was_on))
                 if not latest.is_on == was_on:
                     RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
             else:
