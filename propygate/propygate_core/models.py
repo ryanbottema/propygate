@@ -78,6 +78,8 @@ class RaspPiChannel(models.Model):
     def toggle_high_low(self, rc):
         if not bool(self.is_input):
             was_on = _output_status(self.channel_num) == 0
+
+            _print('{TESTING: {}   |   {}  |     {}}'.format(self.channel_num, was_on, _output_status(self.channel_num)))
             if was_on:
                 turn = GPIO.HIGH
             else:
