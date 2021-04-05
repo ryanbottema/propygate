@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'propygate.propygate_core',
-#    'django_celery_beat',
-    'djcelery'
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -223,22 +223,25 @@ LOGGING = {
 }
 
 # CELERY STUFF
-import djcelery
-djcelery.setup_loader()
+CELERY_RESULT_BACKEND = "django-db"
+
+
+# import djcelery
+# djcelery.setup_loader()
 #BROKER_URL = 'django://'
 
 #BROKER_HOST = "localhost"
 #BROKER_BACKEND="redis"
 #REDIS_PORT=6379
 #REDIS_HOST = "localhost"
-BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'America/Toronto'
-
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+# BROKER_URL = 'redis://localhost:6379'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TIMEZONE = 'America/Toronto'
+#
+# CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
