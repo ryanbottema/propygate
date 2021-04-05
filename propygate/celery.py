@@ -49,7 +49,7 @@ app.conf.beat_scheduler = 'django_celery_beat.schedulers.DatabaseScheduler'
 from celery.schedules import crontab
 app.conf.beat_schedule = {
     'check_enviros_every_5min': {
-        'task': 'check_enviros',
+        'task': 'check_enviro',
         'schedule': 5 * 60,   # in seconds
         'args': (1,),   # assume enviro id of 1
     },
