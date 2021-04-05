@@ -77,25 +77,20 @@ class RaspPiChannel(models.Model):
 
     def toggle_high_low(self, rc):
         if not bool(self.is_input):
-            was_on = _output_status(self.channel_num) == 0
-
-            _print('TESTING: {}   |   {}  |     {}'.format(self.channel_num, was_on, _output_status(self.channel_num)))
-            if was_on:
-                turn = GPIO.HIGH
-            else:
-                turn = GPIO.LOW
-            self.is_low = not self.is_low
-
-            self.save()
-            _output(self.channel_num, turn)
             if RelayControllerToggle.objects.filter(relay_controller=rc).exists():
                 latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
+                was_on = latest.is_on
 
-                _print('{}   |   {}  |     {}'.format(self.channel_num, latest.is_on, was_on))
                 if not latest.is_on == was_on:
                     RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
             else:
+                was_on = False
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
+
+            turn = GPIO.HIGH if was_on else GPIO.LOW
+            self.is_low = not self.is_low
+            self.save()
+            _output(self.channel_num, turn)
 
     def turn_low(self, rc):   # (turn on)
         if not bool(self.is_input):
