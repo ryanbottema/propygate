@@ -21,7 +21,7 @@ def _print(what):
     print_file.close()
 
 
-@app.task
+@shared_task(name="check_enviro")
 def check_enviro(enviro_id):
     try:
         enviro = models.Enviro.objects.get(pk=enviro_id)
