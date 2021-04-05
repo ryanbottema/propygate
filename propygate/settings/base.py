@@ -209,16 +209,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'celery.task': {
-            'handlers': ['celery_task_logger'],
-            'level': 'WARNING',
-            'propagate': True,
-        },
-        'celery': {
-            'handlers': ['celery_logger'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
+        # 'celery.task': {
+        #     'handlers': ['celery_task_logger'],
+        #     'level': 'WARNING',
+        #     'propagate': True,
+        # },
+        # 'celery': {
+        #     'handlers': ['celery_logger'],
+        #     'level': 'ERROR',
+        #     'propagate': True,
+        # },
     }
 }
 
