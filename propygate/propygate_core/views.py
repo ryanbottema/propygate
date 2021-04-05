@@ -1,15 +1,15 @@
 
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
+from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.dateformat import format
-from django.views.generic import TemplateView, CreateView, DetailView, View
+from django.views.generic import TemplateView, View
 
 from . import models
 
 
 def _print(what):
-    print_file = open('/home/propygate/logs/print.log', 'a')
+    print_file = open(settings.PRINT_LOG_FILE, 'a')
     print_file.write('\n%s' % what)
     print_file.close()
 
@@ -148,6 +148,42 @@ class GetChartData(View):
             else:
                 heater_data = False
 
+            if env.fan:
+                fan_toggles = models.RelayControllerToggle.objects.filter(
+                    relay_controller=env.fan, datetime_toggled__gte=timezone.now() - timezone.timedelta(hours=24)
+                ).order_by('datetime_toggled')
+                fan_data = []
+                for ft in fan_toggles:
+                    if not ft.is_on:
+                        fan_data.append({
+                            'is_on': True,
+                            'fake_toggle': True,
+                            'x': int(format(timezone.localtime(ft.datetime_toggled), 'U')) * 1000 - 1
+                        })
+                    fan_data.append({
+                        'datetime_toggled': timezone.localtime(ft.datetime_toggled),
+                        'is_on': ft.is_on,
+                        'enviro_id': env.id,
+                        'fake_toggle': False,
+                        'relay_controller': ft.relay_controller_id,
+                        'x': int(format(timezone.localtime(ft.datetime_toggled), 'U')) * 1000
+                    })
+                if len(fan_data) > 0:
+                    if fan_data[0]['is_on'] and fan_data[0]['fake_toggle']:
+                        fan_data.insert(0, {
+                            'x': int(format(timezone.localtime(timezone.now() - timezone.timedelta(hours=24)), 'U')) * 1000,
+                            'is_on': True,
+                            'fake_toggle': True
+                        })
+                    if fan_data[len(fan_data) - 1]['is_on']:
+                        fan_data.append({
+                            'is_on': True,
+                            'fake_toggle': True,
+                            'x': int(format(timezone.now(), 'U')) * 1000
+                        })
+            else:
+                fan_data = False
+
             enviros_data.append({
                 'name': env.name,
                 'id': env.id,
@@ -155,6 +191,7 @@ class GetChartData(View):
                 'temp_data': temp_data,
                 'light_data': light_data,
                 'heater_data': heater_data,
+                'fan_data': fan_data
             })
 
         return JsonResponse({

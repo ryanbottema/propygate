@@ -243,3 +243,6 @@ CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 LOGIN_REDIRECT_URL = "/propygate"
+
+PRINT_LOG_FILE = '/home/propygate/propygate/logs/print.log'
+ON_RPI = True

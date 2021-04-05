@@ -3,102 +3,116 @@
 {% block title %}New Shipment{% endblock title %}
 
 {% block extra_css %}
-    <!--<link href="{{ STATIC_URL }}datepicker/css/bootstrap-datepicker.css?v={{ VERSION }}" rel="stylesheet">-->
-    <!--<link href="{{ STATIC_URL }}select2/css/select2.min.css?v={{ VERSION }}" rel="stylesheet">-->
-    <link href="{{ STATIC_URL }}propygate_core/css/home.css?v={{ STATIC_VERSION }}" rel="stylesheet">
+  <!--<link href="{{ STATIC_URL }}datepicker/css/bootstrap-datepicker.css?v={{ VERSION }}" rel="stylesheet">-->
+  <!--<link href="{{ STATIC_URL }}select2/css/select2.min.css?v={{ VERSION }}" rel="stylesheet">-->
+  <link href="{{ STATIC_URL }}propygate_core/css/home.css?v={{ STATIC_VERSION }}" rel="stylesheet">
 {% endblock extra_css %}
 
 {% block require_javascript %}
-    require(['home']);
+  require(['home']);
 {% endblock require_javascript %}
 
 {% block extra_js %}
-    <script type="text/javascript">
-        var home_vars = {
-            get_chart_data_url: "{% url 'get_chart_data' %}",
-            toggle_relay_url: "{% url 'toggle_relay' %}"
-        };
-    </script>
+  <script type="text/javascript">
+      var home_vars = {
+          get_chart_data_url: "{% url 'get_chart_data' %}",
+          toggle_relay_url: "{% url 'toggle_relay' %}"
+      };
+  </script>
 {% endblock extra_js %}
 
 {% block content %}
 
-    {% if is_error %}
+  {% if is_error %}
     <div class="row">
-        <div class="col-md-12">
-            {{ is_error }}
-        </div>
+      <div class="col-md-12">
+        {{ is_error }}
+      </div>
     </div>
-    {% endif %}
+  {% endif %}
 
-    <div class="row">
-        <div class="col-sm-8">
-            <div class="box box-success">
+  <div class="row">
+    <div class="col-sm-8">
+      <div class="box box-success">
 
-                <div class="box-header">
-                    <h3 class="box-title">
-                        <i class="fa fa-line-chart fa-fw" aria-hidden="true"></i>
-                        Past 24 hours
-                    </h3>
-                </div>
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div id="enviro-chart"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="box-header">
+          <h3 class="box-title">
+            <i class="fa fa-line-chart fa-fw" aria-hidden="true"></i>
+            Past 24 hours
+          </h3>
         </div>
-
-        <div class="col-sm-4">
-
-            <div class="box box-success">
-
-                <div class="box-header">
-                    <h3 class="box-title">
-                        <i class="fa fa-asterisk fa-fw" aria-hidden="true"></i>
-                        Current State
-                    </h3>
-                </div>
-
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            {% for enviro in enviros %}
-								<div class="row">
-									<div class="col-md-12 border-b"><strong>{{ enviro.name }}</strong></div>
-									
-									<div class="col-md-12">
-										<dl class="dl-horizontal">
-											{% if enviro.temp_probe %}
-												<dt>Current temp:</dt><dd id="current-temp-{{ enviro.id }}"></dd>
-                                                <dt>Ideal temp:</dt><dd id="ideal-temp-{{ enviro.id }}"></dd>
-											{% endif %}
-
-											{% if enviro.heater %}
-												<dt>Heater:</dt>
-												<dd>
-													<span id="heater-is-{{ enviro.id }}"></span>
-													<span id="heater-toggle-{{ enviro.id }}" class="btn btn-xs btn-flat btn-default relay-btn" data-relay-id="{{ enviro.heater.id }}">Turn {{ enviro.heater.is_low|yesno:"On,Off" }}</span>
-												</dd>
-											{% endif %}
-											{% if enviro.light %}
-												<dt>Lights:</dt>
-												<dd>
-													<span id="light-is-{{ enviro.id }}"></span>
-													<span id="light-toggle-{{ enviro.id }}" class="btn btn-xs btn-flat btn-default relay-btn" data-relay-id="{{ enviro.light.id }}">Turn {{ enviro.light.is_low|yesno:"On,Off" }}</span>
-												</dd>
-											{% endif %}
-										</dl>
-									</div>
-								</div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-
+        <div class="box-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div id="enviro-chart"></div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+
+    <div class="col-sm-4">
+
+      <div class="box box-success">
+
+        <div class="box-header">
+          <h3 class="box-title">
+            <i class="fa fa-asterisk fa-fw" aria-hidden="true"></i>
+            Current State
+          </h3>
+        </div>
+
+        <div class="box-body">
+          <div class="row">
+            <div class="col-md-12">
+              {% for enviro in enviros %}
+                <div class="row">
+                  <div class="col-md-12 border-b"><strong>{{ enviro.name }}</strong></div>
+
+                  <div class="col-md-12">
+                    <dl class="dl-horizontal">
+                      {% if enviro.temp_probe %}
+                        <dt>Current temp:</dt>
+                        <dd id="current-temp-{{ enviro.id }}"></dd>
+                        <dt>Ideal temp:</dt>
+                        <dd id="ideal-temp-{{ enviro.id }}"></dd>
+                      {% endif %}
+
+                      {% if enviro.heater %}
+                        <dt>Heater:</dt>
+                        <dd>
+                          <span id="heater-is-{{ enviro.id }}"></span>
+                          <span id="heater-toggle-{{ enviro.id }}" class="btn btn-xs btn-flat btn-default relay-btn"
+                                data-relay-id="{{ enviro.heater.id }}">Turn
+                            {{ enviro.heater.is_low|yesno:"On,Off" }}</span>
+                        </dd>
+                      {% endif %}
+                      {% if enviro.light %}
+                        <dt>Lights:</dt>
+                        <dd>
+                          <span id="light-is-{{ enviro.id }}"></span>
+                          <span id="light-toggle-{{ enviro.id }}" class="btn btn-xs btn-flat btn-default relay-btn"
+                                data-relay-id="{{ enviro.light.id }}">Turn
+                            {{ enviro.light.is_low|yesno:"On,Off" }}</span>
+                        </dd>
+                      {% endif %}
+                      {% if enviro.fan %}
+                        <dt>Fan:</dt>
+                        <dd>
+                          <span id="fan-is-{{ enviro.id }}"></span>
+                          <span id="fan-toggle-{{ enviro.id }}" class="btn btn-xs btn-flat btn-default relay-btn"
+                                data-relay-id="{{ enviro.fan.id }}">Turn {{ enviro.fan.is_low|yesno:"On,Off" }}</span>
+                        </dd>
+                      {% endif %}
+                    </dl>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 {% endblock content %}

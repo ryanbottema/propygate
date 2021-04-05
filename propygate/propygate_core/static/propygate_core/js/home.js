@@ -17,6 +17,7 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
         ideal_temp_line,
         light_area,
         heater_area,
+        fan_area,
         mainClip,
         maxY,
         minY,
@@ -26,6 +27,7 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
         enviro_temps,
         enviro_lights,
         enviro_heater,
+        enviro_fan,
         heater_clip,
         mouse_tracker,
         refresh_mins = 1,
@@ -45,7 +47,15 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
                 num_records = res_enviros_data.num_records;
                 enviros_data = res_enviros_data.enviros_data;
                 num_enviros = enviros_data.length;
-                var colours = ['#001F3F', '#D81B60', '#605ca8', '#d2d6de', '#f56954', '#f39c12', '#00c0ef', '#3c8dbc'];
+                var colours = [
+                    '#001F3F',
+                    '#D81B60',
+                    '#605ca8',
+                    '#d2d6de',
+                    '#f56954',
+                    '#f39c12',
+                    '#00c0ef',
+                    '#3c8dbc'];
                 for (var ed in enviros_data) {
                     enviros_data[ed].colour = colours.pop();
                 }
@@ -74,6 +84,10 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
             if (enviro_data.light_data && enviro_data.light_data.length > 0) {
                 $('#light-is-' + env_id).text(enviro_data.light_data[enviro_data.light_data.length - 1].is_on ? 'On' : 'Off');
                 $('#light-toggle-' + env_id).text(enviro_data.light_data[enviro_data.light_data.length - 1].is_on ? 'Turn Off' : 'Turn On');
+            }
+            if (enviro_data.fan_data && enviro_data.fan_data.length > 0) {
+                $('#fan-is-' + env_id).text(enviro_data.fan_data[enviro_data.fan_data.length - 1].is_on ? 'On' : 'Off');
+                $('#fan-toggle-' + env_id).text(enviro_data.fan_data[enviro_data.fan_data.length - 1].is_on ? 'Turn Off' : 'Turn On');
             }
 
         }
@@ -135,6 +149,11 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
             .y1(function(d) { return yScale(d.temperature) - 8; });
             // .y(function(d) { return yScale(d.temperature); } );
             // .defined(function(d) { return d.is_on; });
+
+        fan_area = d3.area()
+            .x(function(d) { return xScale(d.x); })
+            .y0(function(d) { return yScale(d.temperature) + 8; })
+            .y1(function(d) { return yScale(d.temperature) - 8; });
         
         x_axis_elem = svg.append("g")
             .attr("class", "x axis")
@@ -202,6 +221,12 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
                 .attr("id", function() { return 'heater-clip-' + d.id; })
                 .append("path")
                     .attr("d", function() { return heater_area(d.temp_data); });
+
+            d3.select('defs').append("clipPath")
+                .attr('class', 'fan-clip')
+                .attr("id", function() { return 'fan-clip-' + d.id; })
+                .append("path")
+                    .attr("d", function() { return fan_area(d.temp_data); });
         });
 
         enviro_heater = enviro.append('g')
@@ -215,11 +240,29 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
                 return "area_enviro_heater_" + d.id;
             })
             .attr("d", function(d) {
-                return light_area(d.heater_data);
+                return heater_area(d.heater_data);
             })
             // .attr("clip-path", function(d) { return 'url(#heater-clip-' + d.id + ')'; })//use clip path to make irrelevant part invisible
             .style("fill", function(d) { return d.colour; })
-            .style('opacity', 0.3);
+            .style('opacity', 0.1);
+
+        enviro_fan = enviro.append('g')
+            .attr("class", "enviro-fan")
+            .attr("clip-path", function(d) { return 'url(#fan-clip-' + d.id + ')'; });
+
+        enviro_fan.append('path')
+            .attr("class", "area fan")
+            .style("pointer-events", "none") // Stop line interferring with cursor
+            .attr("id", function(d) {
+                return "area_enviro_fan_" + d.id;
+            })
+            .attr("d", function(d) {
+                return fan_area(d.fan_data);
+            })
+            // .attr("clip-path", function(d) { return 'url(#heater-clip-' + d.id + ')'; })//use clip path to make irrelevant part invisible
+            .style("fill", function(d) { return d.colour; })
+            .style('opacity', 0.1);
+
 
         mouse_tracker = svg.append("rect")
             .attr("width", width)
