@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 from propygate_core.celery import app
 
+from django.conf import settings
 from django.utils import timezone
 
 from . import models
@@ -11,7 +12,7 @@ logger = get_task_logger('celery.task')
 
 
 def _print(what):
-    print_file = open('/home/propygate/logs/print.log', 'a')
+    print_file = open(settings.PRINT_LOG_FILE, 'a')
     print_file.write('\n%s' % what)
     print_file.close()
 
