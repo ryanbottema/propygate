@@ -68,7 +68,7 @@ require(['jquery', 'd3', 'moment'], function($, d3, moment) {
     function update_current_state() {
 
         for (var env in enviros_data) {
-            
+
             var enviro_data = enviros_data[env];
             var env_id = enviro_data.id;
             if (enviro_data.temp_data && enviro_data.temp_data.length > 0) {

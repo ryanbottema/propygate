@@ -80,14 +80,14 @@ class RaspPiChannel(models.Model):
             if RelayControllerToggle.objects.filter(relay_controller=rc).exists():
                 latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
                 was_on = latest.is_on
-
-                if not latest.is_on == was_on:
-                    RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
+                _print('latest: {}. turning {}'.format(was_on, not was_on))
+                RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
             else:
                 was_on = False
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=not was_on)
 
             turn = GPIO.HIGH if was_on else GPIO.LOW
+            _print('GPIO turing ({} if was_on {} if not) {}'.format(GPIO.HIGH, GPIO.LOW, turn))
             self.is_low = not self.is_low
             self.save()
             _output(self.channel_num, turn)
@@ -97,7 +97,7 @@ class RaspPiChannel(models.Model):
 
             if RelayControllerToggle.objects.filter(relay_controller=rc).exists():
                 latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
-                if latest.is_on:
+                if not latest.is_on:
                     RelayControllerToggle.objects.create(relay_controller=rc, is_on=True)
             else:
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=True)
@@ -110,7 +110,7 @@ class RaspPiChannel(models.Model):
         if not bool(self.is_input):
             if RelayControllerToggle.objects.filter(relay_controller=rc).exists():
                 latest = RelayControllerToggle.objects.filter(relay_controller=rc).latest()
-                if not latest.is_on:
+                if latest.is_on:
                     RelayControllerToggle.objects.create(relay_controller=rc, is_on=False)
             else:
                 RelayControllerToggle.objects.create(relay_controller=rc, is_on=False)
